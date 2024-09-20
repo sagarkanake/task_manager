@@ -7,7 +7,9 @@ from .tasks import process_task
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-
+    def get_queryset(self):
+        # Retrieve all tasks and order by ID in descending order
+        return self.queryset.order_by('-id') 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -20,5 +22,5 @@ class TaskViewSet(viewsets.ModelViewSet):
         return Response({
             "task_id": serializer.instance.id,
             "celery_task_id": task.id,
-            "status": "queued"
+            "status": "Queued"
         }, status=201, headers=headers)

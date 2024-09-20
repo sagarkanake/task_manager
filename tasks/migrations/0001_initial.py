@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                             ("in_progress", "In Progress"),
                             ("completed", "Completed"),
                         ],
-                        default="queued",
+                        default="Queued",
                         max_length=20,
                     ),
                 ),

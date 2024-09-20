@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-l@%6fgn(3c&6u2%3563xlc+ccl9-d*)!5q&v+=+&ctikhpoh=z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -40,9 +40,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_celery_results',
     'tasks',
+    'channels',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -51,9 +54,15 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = "task_project.urls"
-
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5173",
+]
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,  # Adjust this value to set how many items per page
+}
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -71,7 +80,18 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "task_project.wsgi.application"
-
+# Specify the ASGI application
+ASGI_APPLICATION = 'task_project.asgi.application'
+# Set up the channel layer (using in-memory layer for simplicity)
+# For example, using Channels Redis
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [("127.0.0.1", 6379)],  # Default Redis host and port
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -125,20 +145,30 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 # Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'celery': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#         'tasks': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#         'tasks.consumers': {  # Adjust to your actual app name
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
+
+
